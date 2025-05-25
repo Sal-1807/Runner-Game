@@ -22,15 +22,5 @@ A responsive, crossplatform-friendly runner game built with pure HTML, CSS, and 
 4. Game gets faster as you score higher
 5. Tap to restart after game over
 
-## Technical Details ⚙️
-
-```plaintext
-Technologies: HTML5, CSS3, JavaScript
-Files:
-  - index.html      : Main game file
-  - style.css       : All styling and animations
-  - game.js         : Game logic and mechanics
-  - README.md       : This documentation
-  - screenshot.png  : Game preview image
-
-  
+## Credits 🌟
+Developed by Sal-1807
