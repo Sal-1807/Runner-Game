@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Runner Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        .game-wrapper {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .game-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #90EE90 100%);
+            overflow: hidden;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: repeating-linear-gradient(
+                90deg,
+                #8B4513 0px,
+                #8B4513 20px,
+                #A0522D 20px,
+                #A0522D 40px
+            );
+            animation: moveGround 1s linear infinite;
+        }
+
+        @keyframes moveGround {
+            0% { background-position-x: 0px; }
+            100% { background-position-x: 40px; }
+        }
+
+        .player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #FF6B35;
+            border-radius: 50%;
+            bottom: 80px;
+            left: 50px;
+            transition: left 0.6s ease-out;
+            border: 3px solid #FF4500;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .player::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+
+        .player::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            top: 10px;
+            right: 8px;
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 25px;
+            height: 50px;
+            background: linear-gradient(45deg, #8B0000, #FF0000);
+            bottom: 80px;
+            border-radius: 5px 5px 0 0;
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+
+        .obstacle::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #FF0000;
+        }
+
+        .bird {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: #4A4A4A;
+            border-radius: 50% 0 50% 50%;
+            animation: flap 0.3s ease-in-out infinite alternate;
+        }
+
+        .bird::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            top: 6px;
+            left: 20px;
+        }
+
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 8px;
+            background: #4A4A4A;
+            border-radius: 0 50% 50% 0;
+            top: 6px;
+            right: -8px;
+            animation: wingFlap 0.3s ease-in-out infinite alternate;
+        }
+
+        @keyframes flap {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-3px); }
+        }
+
+        @keyframes wingFlap {
+            0% { transform: scaleY(1); }
+            100% { transform: scaleY(0.7); }
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: moveClouds 20s linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 50px;
+            height: 20px;
+            top: 20%;
+            left: 10%;
+        }
+
+        .cloud1::before {
+            width: 25px;
+            height: 25px;
+            top: -12px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 30px;
+            height: 20px;
+            top: -8px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 40px;
+            height: 15px;
+            top: 15%;
+            left: 60%;
+            animation-delay: -10s;
+        }
+
+        .cloud2::before {
+            width: 20px;
+            height: 20px;
+            top: -8px;
+            left: 8px;
+        }
+
+        .cloud2::after {
+            width: 25px;
+            height: 15px;
+            top: -5px;
+            right: 8px;
+        }
+
+        @keyframes moveClouds {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100vw); }
+        }
+
+        .start-screen, .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .start-screen h1, .game-over h2 {
+            font-size: clamp(24px, 6vw, 48px);
+            margin-bottom: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-screen p, .game-over p {
+            font-size: clamp(14px, 4vw, 20px);
+            margin: 10px 20px;
+            line-height: 1.4;
+        }
+
+        .tap-instruction {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(16px, 4vw, 24px);
+            color: #FFD700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .score-popup {
+            position: absolute;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @keyframes scorePopup {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .ui-panel {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            .player {
+                width: 25px;
+                height: 25px;
+                left: 40px;
+            }
+            
+            .obstacle {
+                width: 20px;
+                height: 40px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .ui-panel {
+                padding: 5px 15px;
+            }
+            
+            .ground {
+                height: 60px;
+            }
+            
+            .player {
+                bottom: 60px;
+            }
+            
+            .obstacle {
+                bottom: 60px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="ui-panel">
+            <div id="score-display">Score: 0</div>
+            <div id="high-score-display">High Score: 0</div>
+        </div>
+        
+        <div class="game-container" id="game-container">
+            <div class="ground"></div>
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+            <div class="player" id="player"></div>
+            
+            <div class="start-screen" id="start-screen">
+                <h1>🏃‍♂️ Runner Game</h1>
+                <p>Jump over obstacles and survive as long as you can!</p>
+                <p>The game gets faster as your score increases.</p>
+                <div class="tap-instruction">TAP ANYWHERE TO START</div>
+            </div>
+            
+            <div class="game-over hidden" id="game-over">
+                <h2>Game Over!</h2>
+                <p id="final-score">Final Score: 0</p>
+                <div class="tap-instruction">TAP ANYWHERE TO RESTART</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const player = document.getElementById('player');
+            const gameContainer = document.querySelector('.game-container');
+            const scoreDisplay = document.getElementById('score-display');
+            const highScoreDisplay = document.getElementById('high-score-display');
+            const gameOverDisplay = document.getElementById('game-over');
+            const startScreen = document.getElementById('start-screen');
+            const finalScoreDisplay = document.getElementById('final-score');
+            
+            let isJumping = false;
+            let isGameOver = false;
+            let isGameStarted = false;
+            let score = 0;
+            let highScore = 0; // Changed from localStorage
+            let gameSpeed = 2;
+            let gravity = 0.8;
+            let playerVelocity = 0;
+            let obstacles = [];
+            let birds = [];
+            let animationId;
+            let scoreInterval;
+            let lastObstacleTime = 0;
+            let lastBirdTime = 0;
+            let groundOffset = 60; // Responsive ground height
+            
+            // Initialize game
+            function init() {
+                // Adjust ground offset based on screen size
+                if (window.innerHeight < 600) {
+                    groundOffset = 60;
+                    document.querySelector('.ground').style.height = '60px';
+                } else {
+                    groundOffset = 80;
+                }
+                
+                highScoreDisplay.textContent = `High Score: ${highScore}`;
+                resetPlayerPosition();
+            }
+            
+            function resetPlayerPosition() {
+                player.style.bottom = `${groundOffset}px`;
+            }
+            
+            function startGame() {
+                isGameOver = false;
+                isGameStarted = true;
+                score = 0;
+                gameSpeed = Math.max(2, window.innerWidth / 400); // Responsive speed
+                resetPlayerPosition();
+                startScreen.classList.add('hidden');
+                gameOverDisplay.classList.add('hidden');
+                lastObstacleTime = Date.now();
+                
+                // Clear existing obstacles and birds
+                obstacles.forEach(obstacle => obstacle.element.remove());
+                birds.forEach(bird => bird.element.remove());
+                obstacles = [];
+                birds = [];
+                
+                scoreInterval = setInterval(updateScore, 100);
+                gameLoop();
+            }
+            
+            function gameLoop() {
+                if (isGameOver) {
+                    cancelAnimationFrame(animationId);
+                    return;
+                }
+                
+                updatePlayer();
+                updateObstacles();
+                checkCollisions();
+                
+                animationId = requestAnimationFrame(gameLoop);
+            }
+            
+            function updatePlayer() {
+                if (isJumping) {
+                    playerVelocity -= gravity * 0.85; // Slightly reduced gravity for longer hang time
+                    const currentBottom = parseInt(player.style.bottom) || groundOffset;
+                    const newBottom = currentBottom + playerVelocity;
+                    
+                    if (newBottom <= groundOffset) {
+                        player.style.bottom = `${groundOffset}px`;
+                        isJumping = false;
+                        playerVelocity = 0;
+                    } else {
+                        player.style.bottom = `${newBottom}px`;
+                    }
+                }
+            }
+            
+            function jump() {
+                if (!isJumping && isGameStarted && !isGameOver) {
+                    isJumping = true;
+                    playerVelocity = Math.min(18, window.innerHeight / 30); // Increased jump height for longer hang time
+                    
+                    // Significant horizontal forward movement for dodging grouped obstacles
+                    const currentLeft = parseInt(player.style.left) || (window.innerWidth < 480 ? 40 : 50);
+                    const jumpDistance = gameSpeed * 8; // Distance based on game speed for better dodging
+                    const maxLeft = window.innerWidth < 480 ? 90 : 120; // Increased max distance
+                    player.style.left = `${Math.min(currentLeft + jumpDistance, maxLeft)}px`;
+                    
+                    // Gradual return to original position after jump lands
+                    setTimeout(() => {
+                        const originalLeft = window.innerWidth < 480 ? 40 : 50;
+                        player.style.left = `${originalLeft}px`;
+                    }, 600); // Longer return time for better obstacle clearing
+                    
+                    // Add jump animation effect
+                    player.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        player.style.transform = 'scale(1)';
+                    }, 100);
+                } else if (isGameOver) {
+                    startGame();
+                } else if (!isGameStarted) {
+                    startGame();
+                }
+            }
+            
+            function createObstacle() {
+                const now = Date.now();
+                const minSpacing = Math.max(300, window.innerWidth * 0.4); // Closer spacing for groups
+                
+                if (now - lastObstacleTime < (minSpacing / gameSpeed) * 16) return;
+                
+                const obstacle = document.createElement('div');
+                obstacle.className = 'obstacle';
+                obstacle.style.left = `${window.innerWidth}px`;
+                gameContainer.appendChild(obstacle);
+                
+                const obstacleWidth = window.innerWidth < 480 ? 20 : 25;
+                const obstacleHeight = window.innerHeight < 600 ? 40 : 50;
+                
+                obstacles.push({
+                    element: obstacle,
+                    x: window.innerWidth,
+                    y: groundOffset,
+                    width: obstacleWidth,
+                    height: obstacleHeight
+                });
+                
+                // Chance to create a second obstacle close behind (group formation)
+                if (Math.random() < 0.4 && obstacles.length < 5) {
+                    setTimeout(() => {
+                        const groupObstacle = document.createElement('div');
+                        groupObstacle.className = 'obstacle';
+                        groupObstacle.style.left = `${window.innerWidth + 80}px`; // Close spacing
+                        gameContainer.appendChild(groupObstacle);
+                        
+                        obstacles.push({
+                            element: groupObstacle,
+                            x: window.innerWidth + 80,
+                            y: groundOffset,
+                            width: obstacleWidth,
+                            height: obstacleHeight
+                        });
+                    }, 50);
+                }
+                
+                lastObstacleTime = now;
+            }
+
+            function createBird() {
+                const now = Date.now();
+                const minSpacing = Math.max(600, window.innerWidth * 0.8); // Different spacing for birds
+                
+                if (now - lastBirdTime < (minSpacing / gameSpeed) * 16) return;
+                
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                
+                // Random height between ground level and max jump height
+                const birdHeight = groundOffset + Math.random() * (window.innerHeight * 0.3);
+                bird.style.bottom = `${birdHeight}px`;
+                bird.style.left = `${window.innerWidth}px`;
+                gameContainer.appendChild(bird);
+                
+                const birdWidth = 30;
+                const birdHeightSize = 20;
+                
+                birds.push({
+                    element: bird,
+                    x: window.innerWidth,
+                    y: birdHeight,
+                    width: birdWidth,
+                    height: birdHeightSize
+                });
+                
+                lastBirdTime = now;
+            }
+            
+            function updateObstacles() {
+                // Update ground obstacles
+                obstacles.forEach((obstacle, index) => {
+                    obstacle.x -= gameSpeed;
+                    obstacle.element.style.left = `${obstacle.x}px`;
+                    
+                    if (obstacle.x < -obstacle.width) {
+                        obstacle.element.remove();
+                        obstacles.splice(index, 1);
+                    }
+                });
+
+                // Update birds
+                birds.forEach((bird, index) => {
+                    bird.x -= gameSpeed;
+                    bird.element.style.left = `${bird.x}px`;
+                    
+                    if (bird.x < -bird.width) {
+                        bird.element.remove();
+                        birds.splice(index, 1);
+                    }
+                });
+                
+                // Spawn ground obstacles - with group formation
+                const obstacleSpawnRate = Math.max(0.012, 0.020 - (score * 0.000008));
+                if (Math.random() < obstacleSpawnRate && obstacles.length < 6) {
+                    createObstacle();
+                }
+
+                // Spawn birds - less frequent than obstacles
+                const birdSpawnRate = Math.max(0.008, 0.015 - (score * 0.000005));
+                if (Math.random() < birdSpawnRate && birds.length < 2) {
+                    createBird();
+                }
+            }
+            
+            function checkCollisions() {
+                const playerSize = window.innerWidth < 480 ? 25 : 30;
+                const playerLeft = window.innerWidth < 480 ? 40 : 50;
+                
+                const playerRect = {
+                    x: playerLeft,
+                    y: parseInt(player.style.bottom) || groundOffset,
+                    width: playerSize * 0.7, // Slightly smaller hitbox for better gameplay
+                    height: playerSize * 0.7
+                };
+                
+                // Check collision with ground obstacles
+                for (const obstacle of obstacles) {
+                    const obstacleRect = {
+                        x: obstacle.x + 5,
+                        y: obstacle.y + 5,
+                        width: obstacle.width - 10,
+                        height: obstacle.height - 10
+                    };
+                    
+                    if (
+                        playerRect.x < obstacleRect.x + obstacleRect.width &&
+                        playerRect.x + playerRect.width > obstacleRect.x &&
+                        playerRect.y < obstacleRect.y + obstacleRect.height &&
+                        playerRect.y + playerRect.height > obstacleRect.y
+                    ) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                // Check collision with birds
+                for (const bird of birds) {
+                    const birdRect = {
+                        x: bird.x + 3,
+                        y: bird.y + 3,
+                        width: bird.width - 6,
+                        height: bird.height - 6
+                    };
+                    
+                    if (
+                        playerRect.x < birdRect.x + birdRect.width &&
+                        playerRect.x + playerRect.width > birdRect.x &&
+                        playerRect.y < birdRect.y + birdRect.height &&
+                        playerRect.y + playerRect.height > birdRect.y
+                    ) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+            
+            function gameOver() {
+                isGameOver = true;
+                clearInterval(scoreInterval);
+                
+                finalScoreDisplay.textContent = `Final Score: ${score}`;
+                gameOverDisplay.classList.remove('hidden');
+                
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreDisplay.textContent = `High Score: ${highScore}`;
+                    
+                    // Show new high score celebration
+                    showScorePopup("NEW HIGH SCORE!", window.innerWidth / 2, window.innerHeight / 2);
+                }
+                
+                // Add screen shake effect
+                gameContainer.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    gameContainer.style.animation = '';
+                }, 500);
+            }
+            
+            function updateScore() {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                
+                // Increase speed at every 100 points (100, 200, 300, 400, 500, etc.)
+                if (score % 100 === 0) {
+                    gameSpeed += 0.5; // Increased speed boost for more noticeable effect
+                    showScorePopup(`SPEED UP! Level ${score/100}`, window.innerWidth / 2, 100);
+                }
+                
+                // Score milestones every 500 points
+                if (score % 500 === 0) {
+                    showScorePopup(`${score} POINTS!`, window.innerWidth / 2, 150);
+                }
+            }
+            
+            function showScorePopup(text, x, y) {
+                const popup = document.createElement('div');
+                popup.className = 'score-popup';
+                popup.textContent = text;
+                popup.style.left = `${x - 50}px`;
+                popup.style.top = `${y}px`;
+                popup.style.animation = 'scorePopup 2s ease-out forwards';
+                
+                gameContainer.appendChild(popup);
+                
+                setTimeout(() => {
+                    popup.remove();
+                }, 2000);
+            }
+            
+            // Enhanced touch and click handling
+            function handleInput(e) {
+                e.preventDefault();
+                jump();
+            }
+            
+            // Multiple input methods for better mobile support
+            gameContainer.addEventListener('touchstart', handleInput, { passive: false });
+            gameContainer.addEventListener('click', handleInput);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'ArrowUp') {
+                    e.preventDefault();
+                    jump();
+                }
+            });
+            
+            // Handle screen orientation and resize
+            window.addEventListener('resize', () => {
+                init();
+            });
+            
+            // Prevent scrolling and zooming on mobile
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Add shake animation for game over
+            const shakeKeyframes = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-10px); }
+                    75% { transform: translateX(10px); }
+                }
+            `;
+            
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = shakeKeyframes;
+            document.head.appendChild(styleSheet);
+            
+            // Initialize the game
+            init();
+        });
+    </script>
+</body>
+</html>
