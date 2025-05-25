@@ -12,7 +12,7 @@ A responsive, crossplatform-friendly runner game built with pure HTML, CSS, and 
 
 ## Demo 🎮
 
-[![Play Now](https://img.shields.io/badge/Play-Online-brightgreen)]
+
 
 ## How to Play 🕹️
 
