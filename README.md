@@ -12,7 +12,9 @@ A responsive, crossplatform-friendly runner game built with pure HTML, CSS, and 
 
 ## Demo 🎮
 
+Play Live demo at : https://runnerzz.netlify.app/
 
+Works on all platforms!!
 
 ## How to Play 🕹️
 
