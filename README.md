@@ -1,6 +1,6 @@
 # 🏃‍♂️ Runner Game
 
-A responsive, crossplatform-friendly runner game built with pure HTML, CSS, and JavaScript. Jump over obstacles and survive as long as you can!
+A responsive, crossplatform-friendly runner game built with pure HTML, CSS, and JavaScript.This is the second version of other runner game called as "Block-runner" with more features than the previous game in this too you have to jump over obstacles and survive as long as you can!
 
 ## Features ✨
 
